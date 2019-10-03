@@ -13,17 +13,22 @@ import pandas as pd
 urlLogin = 'https://172.16.2.105:5544/Login'
 urlData = 'https://172.16.2.105:5544/GetSCData?name=XE1T.CRY_PT103_PCHAMBER_AI.PI&QueryType=lab&StartDateUnix=1483056000&EndDateUnix=1483056900&Interval=1'
 
-def string_to_lngs_epoch(string):
-    datetime_format = '%Y-%m-%d %H:%M:%S'
+def string_to_lngs_epoch(string, datetime_format='%Y-%m-%d %H:%M:%S'):
+    # Just putting things in LNGS time and making a unified date format
+    # to make things simple.
     epoch = datetime(1970, 1, 1)
     return (datetime.strptime(string, datetime_format) - epoch).total_seconds() - (2*3600)
 
 def flatten(data):
+    # I prefer two arrays to a list of ordered pairs
     times = [line['timestampseconds'] for line in data]
     values = [line['value'] for line in data]
     return times, values
 
 def get_df(names, start_time, stop_time, time_interval=60, query_type='lab'):
+    # Wraps the other functions in a stupid way, just making a query
+    # for each variable and assuming the time arrays are the same
+    # (I think this is safe but lazy). Sorry SC server...
     cols = {}
     for name in names:
         two_col_list = get_data(
@@ -41,6 +46,7 @@ def get_df(names, start_time, stop_time, time_interval=60, query_type='lab'):
     return pd.DataFrame(cols)
 
 def make_query(name, start_time, stop_time, time_interval=60, query_type='lab'):
+    # Just formatting some args into a simple query to the server (one var only)
     query = 'https://172.16.2.105:5544/GetSCData?name={name}&QueryType={query_type}&StartDateUnix={start_epoch}&EndDateUnix={stop_epoch}&Interval={time_interval}'
     query_formatted = query.format(
         name=name,
@@ -52,6 +58,9 @@ def make_query(name, start_time, stop_time, time_interval=60, query_type='lab'):
     return query_formatted
  
 def get_data(urlData, prompt=False, verbose=False):
+    # Just turned the code here:
+    # https://xe1t-wiki.lngs.infn.it/doku.php?id=xenon:xenon1t:slowcontrol:webserviceNew
+    # into a function and translated to python3
     if prompt:
         username = raw_input("Username: ")
         password = getpass.getpass()
