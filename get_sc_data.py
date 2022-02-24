@@ -18,7 +18,7 @@ def string_to_lngs_epoch(string, datetime_format='%Y-%m-%d %H:%M:%S'):
     # Just putting things in LNGS time and making a unified date format
     # to make things simple.
     epoch = datetime(1970, 1, 1)
-    return (datetime.strptime(string, datetime_format) - epoch).total_seconds() - (2*3600)
+    return (datetime.strptime(string, datetime_format) - epoch).total_seconds()
 
 def flatten(data):
     # I prefer two arrays to a list of ordered pairs
