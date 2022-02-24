@@ -1,6 +1,7 @@
 # mostly copied from historian example by Joey
 
 import urllib
+import urllib.request
 import json
 import ssl
 import getpass
@@ -43,6 +44,12 @@ def get_df(names, start_time, stop_time, time_interval=60, query_type='lab'):
         times, data = flatten(two_col_list)
         cols['time'] = times
         cols[name] = data
+    try:
+        output = pd.DataFrame(cols)
+    except ValueError as err:
+        for key, val in cols.items():
+            print(key, len(val))
+        raise ValueError(err)
     return pd.DataFrame(cols)
 
 def make_query(name, start_time, stop_time, time_interval=60, query_type='lab'):
